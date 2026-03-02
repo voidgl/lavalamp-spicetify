@@ -1,321 +1,249 @@
-/* ============================================
-   LAVA LAMP - Spicetify Theme
-   Animated morphing blobs with album-reactive colors
-   ============================================ */
+/* LAVA LAMP v6 */
 
 :root {
-  --lava-color-1: #7b2ff7;
-  --lava-color-2: #ff2d95;
-  --lava-color-3: #00d4ff;
-  --lava-color-4: #ff6b2d;
-  --lava-speed: 20s;
-  --lava-opacity: 0.35;
-  --lava-blur: 80px;
-  --lava-blob-size: 40vw;
-  --glow-color: #7b2ff7;
-  --glow-color-2: #ff2d95;
-  --glow-intensity: 0.15;
-  --glow-spread: 30px;
+  --lava-rgb-1: 58, 74, 122;
+  --lava-rgb-2: 74, 58, 106;
+  --lava-color-1: #3a4a7a;
+  --lava-color-2: #4a3a6a;
 }
 
-/* --- Lava Lamp Background Layer --- */
-
-.Root {
-  position: relative;
-  background: var(--spice-main) !important;
-}
-
-/* Container for the lava blobs - sits behind all content */
-.Root::before {
-  content: '';
+/* Blob overlay */
+#lavalamp-canvas {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 0;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: 99999;
   pointer-events: none;
-  background:
-    radial-gradient(
-      ellipse var(--lava-blob-size) var(--lava-blob-size) at 25% 30%,
-      var(--lava-color-1),
-      transparent 70%
-    ),
-    radial-gradient(
-      ellipse var(--lava-blob-size) var(--lava-blob-size) at 75% 60%,
-      var(--lava-color-2),
-      transparent 70%
-    ),
-    radial-gradient(
-      ellipse var(--lava-blob-size) var(--lava-blob-size) at 50% 80%,
-      var(--lava-color-3),
-      transparent 70%
-    ),
-    radial-gradient(
-      ellipse var(--lava-blob-size) var(--lava-blob-size) at 60% 20%,
-      var(--lava-color-4),
-      transparent 70%
-    );
-  opacity: var(--lava-opacity);
-  filter: blur(var(--lava-blur));
-  animation: lavaMove var(--lava-speed) ease-in-out infinite alternate;
+  overflow: hidden;
+  mix-blend-mode: screen;
 }
 
-@keyframes lavaMove {
-  0% {
-    background-position:
-      0% 0%,
-      100% 100%,
-      50% 100%,
-      80% 0%;
-    transform: scale(1) rotate(0deg);
-  }
-  25% {
-    background-position:
-      20% 60%,
-      80% 20%,
-      30% 50%,
-      60% 80%;
-    transform: scale(1.05) rotate(1deg);
-  }
-  50% {
-    background-position:
-      60% 40%,
-      20% 80%,
-      70% 20%,
-      40% 60%;
-    transform: scale(1.02) rotate(-1deg);
-  }
-  75% {
-    background-position:
-      80% 20%,
-      40% 60%,
-      60% 70%,
-      20% 30%;
-    transform: scale(1.08) rotate(0.5deg);
-  }
-  100% {
-    background-position:
-      40% 80%,
-      60% 10%,
-      20% 40%,
-      70% 70%;
-    transform: scale(1) rotate(-0.5deg);
-  }
+#lavalamp-canvas .blob {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(60px);
+  opacity: 0.45;
+  transition: background-color 2s ease;
+  will-change: transform, left, top;
 }
 
-/* --- Ensure content sits above the lava layer --- */
+/* ---- Seamless panel layout ---- */
 
-.Root > * {
-  position: relative;
+/* Kill all gaps, borders, rounded corners, outlines */
+.Root__top-container {
+  gap: 0px !important;
+  overflow: visible !important;
+}
+
+.Root__top-container > * {
+  border: none !important;
+  outline: none !important;
+  border-radius: 0 !important;
+}
+
+/* Resize bars completely invisible — zero visual width */
+.LayoutResizer__resize-bar,
+.LayoutResizer__resize-bar::before,
+.LayoutResizer__resize-bar::after {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  min-width: 0 !important;
+  width: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  opacity: 0 !important;
+}
+
+/* Panels should not clip their glow */
+.Root__nav-bar,
+.Root__main-view,
+.Root__right-sidebar {
+  overflow: visible !important;
   z-index: 1;
 }
 
-/* --- Translucent panels so lava bleeds through --- */
-
-.main-home-content,
+/* Every panel, sidebar, container — same bg, no radius, no border */
+.Root__nav-bar,
+#Desktop_LeftSidebar_Id,
+.Root__right-sidebar,
+.Root__now-playing-bar,
 .Root__main-view,
 .main-view-container,
+.main-view-container__scroll-node,
+.Root__top-bar,
+.main-topBar-container,
+.spotify__container--is-desktop,
 .os-host,
 .os-padding,
 .os-viewport,
-.os-content {
-  background: transparent !important;
+.contentSpacing {
+  border-radius: 0 !important;
+  border: none !important;
+  outline: none !important;
+  background: var(--spice-main) !important;
 }
 
-.main-view-container__scroll-node-child {
-  background: transparent !important;
-}
-
-/* Sidebar - translucent + glow */
-.Root__nav-bar,
+/* Inner sidebar panels — kill their own bg/borders */
+.Root__nav-bar > *,
+#Desktop_LeftSidebar_Id > *,
+.Root__right-sidebar > *,
 .main-yourLibraryX-entryPoints,
-nav.Root__nav-bar {
-  background: rgba(var(--spice-rgb-sidebar), 0.6) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow:
-    inset 0 0 var(--glow-spread) rgba(var(--spice-rgb-button), var(--glow-intensity)),
-    2px 0 calc(var(--glow-spread) * 1.5) rgba(var(--spice-rgb-button), calc(var(--glow-intensity) * 0.6));
-  border-right: 1px solid rgba(var(--spice-rgb-button), 0.1);
-  transition: box-shadow 1.2s ease, border-color 1.2s ease;
+.main-navBar-navBar,
+.main-yourLibraryX-libraryContainer,
+.main-yourLibraryX-libraryRootlist {
+  border-radius: 0 !important;
+  border: none !important;
+  background: transparent !important;
 }
 
-/* Now Playing bar - translucent + glow */
-.Root__now-playing-bar,
-footer.Root__now-playing-bar {
-  background: rgba(var(--spice-rgb-player), 0.65) !important;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow:
-    inset 0 0 var(--glow-spread) rgba(var(--spice-rgb-button), var(--glow-intensity)),
-    0 -2px calc(var(--glow-spread) * 2) rgba(var(--spice-rgb-button), calc(var(--glow-intensity) * 0.5));
-  border-top: 1px solid rgba(var(--spice-rgb-button), 0.12);
-  transition: box-shadow 1.2s ease, border-color 1.2s ease;
+/* Right sidebar panel content */
+.Root__right-sidebar section,
+.Root__right-sidebar header,
+.Root__right-sidebar > div {
+  border-radius: 0 !important;
+  border: none !important;
 }
 
-/* Cards - glass effect + glow */
-.main-card-card,
-.main-cardImage-imageWrapper {
-  background: rgba(var(--spice-rgb-card), 0.5) !important;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 0 12px rgba(var(--spice-rgb-button), 0.06);
-  transition: box-shadow 0.4s ease, border-color 0.3s ease, transform 0.2s ease;
+/* Now-playing bar inner content */
+.Root__now-playing-bar > *,
+.main-nowPlayingBar-container {
+  border: none !important;
+  background: transparent !important;
+}
+
+/* Main view inner wrappers */
+.main-view-container > *,
+.os-host,
+.os-padding {
+  border-radius: 0 !important;
+  border: none !important;
+}
+
+/* Now-playing bar — flush, no top border */
+.Root__now-playing-bar {
+  border-top: none !important;
+  margin-top: 0 !important;
+}
+
+/* ---- Glow borders — wide diffused glow, NOT hard edges ---- */
+.Root__nav-bar {
+  box-shadow: 12px 0 50px rgba(var(--lava-rgb-1), 0.25) !important;
+  transition: box-shadow 2s ease;
+}
+
+.Root__right-sidebar {
+  box-shadow: -12px 0 50px rgba(var(--lava-rgb-2), 0.25) !important;
+  transition: box-shadow 2s ease;
+}
+
+.Root__now-playing-bar {
+  box-shadow: 0 -10px 50px rgba(var(--lava-rgb-1), 0.2) !important;
+  transition: box-shadow 2s ease;
+}
+
+/* ---- Force ALL Spotify dynamic/gradient areas to match theme ---- */
+
+/* Named classes Spotify uses for header gradients — zero transition */
+.main-entityHeader-backgroundColor,
+.main-actionBarBackground-background,
+.under-main-view,
+.main-entityHeader-overlay,
+.main-entityHeader-background,
+.main-entityHeader-gradient,
+.main-home-header,
+.encore-internal-colorExtractor-overBackgroundColorExtracted {
+  background: var(--spice-main) !important;
+  background-color: var(--spice-main) !important;
+  background-image: none !important;
+  transition: none !important;
+}
+
+/* Top bar — frosted glass so blobs bleed through slightly */
+.main-topBar-container,
+.main-topBar-background,
+.main-topBar-container[style] {
+  background: rgba(var(--spice-rgb-main), 0.8) !important;
+  background-color: rgba(var(--spice-rgb-main), 0.8) !important;
+  background-image: none !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  transition: none !important;
+}
+
+.main-topBar-container::before,
+.main-topBar-container::after,
+.main-topBar-background::before,
+.main-topBar-background::after {
+  display: none !important;
+}
+
+/* Playlist/album track list column headers — frosted glass */
+.main-trackList-trackListHeader,
+.main-trackList-trackListHeaderRow,
+[aria-colindex] th,
+.main-trackList-trackListHeader th {
+  background: rgba(var(--spice-rgb-main), 0.8) !important;
+  background-color: rgba(var(--spice-rgb-main), 0.8) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Album/playlist header area — frosted glass */
+.main-entityHeader-container,
+.main-entityHeader-headerText,
+.main-actionBar-ActionBar {
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+/* Decorated background var */
+[style*="--decorated-background"] {
+  background-color: var(--spice-main) !important;
+  background-image: none !important;
+  background: var(--spice-main) !important;
+}
+
+/* Pseudo-element overlays */
+.under-main-view::before,
+.under-main-view::after,
+.main-entityHeader-overlay::before,
+.main-entityHeader-overlay::after {
+  display: none !important;
+}
+
+/* Album art glow */
+.main-nowPlayingWidget-coverArt img,
+.cover-art img {
+  box-shadow: 0 0 28px rgba(var(--lava-rgb-1), 0.35);
+  transition: box-shadow 2s ease;
+}
+
+/* Controls glow */
+.player-controls {
+  filter: drop-shadow(0 0 6px rgba(var(--lava-rgb-1), 0.2));
+  transition: filter 2s ease;
+}
+
+.main-playPauseButton-button:hover {
+  filter: drop-shadow(0 0 10px var(--lava-color-1));
+}
+
+/* Card hover */
+.main-card-card {
+  transition: box-shadow 0.3s ease, transform 0.2s ease !important;
 }
 
 .main-card-card:hover {
-  border-color: rgba(var(--spice-rgb-button), 0.2);
-  box-shadow:
-    0 0 20px rgba(var(--spice-rgb-button), 0.15),
-    0 4px 24px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 18px rgba(var(--lava-rgb-1), 0.15);
   transform: translateY(-2px);
 }
 
-/* --- Top bar - translucent + glow --- */
-.main-topBar-container,
-.main-topBar-background {
-  background: rgba(var(--spice-rgb-main), 0.4) !important;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow:
-    inset 0 0 calc(var(--glow-spread) * 0.8) rgba(var(--spice-rgb-button), calc(var(--glow-intensity) * 0.5)),
-    0 2px calc(var(--glow-spread)) rgba(var(--spice-rgb-button), calc(var(--glow-intensity) * 0.3));
-  border-bottom: 1px solid rgba(var(--spice-rgb-button), 0.08);
-  transition: box-shadow 1.2s ease;
-}
-
-/* --- Right sidebar / now-playing panel glow --- */
-.Root__right-sidebar,
-aside[aria-label="Now playing view"] {
-  background: rgba(var(--spice-rgb-sidebar), 0.5) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow:
-    inset 0 0 var(--glow-spread) rgba(var(--spice-rgb-button), var(--glow-intensity)),
-    -2px 0 calc(var(--glow-spread) * 1.5) rgba(var(--spice-rgb-button), calc(var(--glow-intensity) * 0.5));
-  border-left: 1px solid rgba(var(--spice-rgb-button), 0.08);
-  transition: box-shadow 1.2s ease;
-}
-
-/* --- Album art glow in now-playing --- */
-.main-nowPlayingWidget-coverArt img,
-.cover-art img {
-  box-shadow: 0 0 30px rgba(var(--spice-rgb-button), 0.3);
-  transition: box-shadow 1.2s ease;
-}
-
-/* --- Playback controls area glow pulse --- */
-.player-controls {
-  filter: drop-shadow(0 0 8px rgba(var(--spice-rgb-button), 0.2));
-  transition: filter 1.2s ease;
-}
-
-/* --- Playback bar glow --- */
-.playback-bar .progress-bar__slider {
-  box-shadow: 0 0 8px var(--spice-playback-bar),
-              0 0 16px var(--spice-playback-bar);
-}
-
-.playback-bar .progress-bar__fg {
-  background: var(--spice-playback-bar) !important;
-  box-shadow: 0 0 6px var(--spice-playback-bar);
-}
-
-/* --- Button glow on hover --- */
-.main-playPauseButton-button,
-.player-controls__buttons button {
-  transition: filter 0.2s ease;
-}
-
-.main-playPauseButton-button:hover,
-.player-controls__buttons button:hover {
-  filter: drop-shadow(0 0 6px var(--spice-button));
-}
-
-/* --- Scrollbar styling --- */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-/* --- Smooth transitions for color changes --- */
-* {
-  transition: background-color 0.8s ease, color 0.3s ease, border-color 0.5s ease;
-}
-
-/* Exclude elements where transitions cause jank */
-.progress-bar *,
-.playback-bar *,
-input,
-button {
-  transition: none;
-}
-
-/* Re-enable specific button transitions */
-.main-card-card,
-.main-playPauseButton-button,
-.player-controls__buttons button {
-  transition: filter 0.2s ease, transform 0.2s ease, border-color 0.3s ease;
-}
-
-/* ============================================
-   Ad & Upgrade Prompt Removal
-   Uses stable semantic selectors only.
-   ============================================ */
-
-/* Upgrade button in top nav */
-.main-topBar-UpgradeButton {
-  display: none !important;
-}
-
-/* "Upgrade to Premium" in context menus */
-.main-contextMenu-menuItem a[href^="https://www.spotify.com/premium/"] {
-  display: none !important;
-}
-
-/* Leaderboard / banner ad container above now-playing bar */
-.main-leaderboardComponent-container {
-  display: none !important;
-}
-
-/* Sponsored playlist containers */
-.sponsor-container {
-  display: none !important;
-}
-
-/* Upgrade buttons by accessible attributes */
-button[title="Upgrade to Premium"],
-button[aria-label="Upgrade to Premium"],
-a[title="Upgrade to Premium"],
-a[aria-label="Upgrade to Premium"] {
-  display: none !important;
-}
-
-/* Homepage takeover ad sections */
-.desktoproutes-homepage-takeover-ad-hptoComponent-parentContainer {
-  display: none !important;
-}
-
-/* HPTO (homepage takeover) by test-id */
-div[data-testid*="hpto"] {
-  display: none !important;
-}
-
-/* Billboard ad view */
-#view-billboard-ad {
-  display: none !important;
-}
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(var(--lava-rgb-1), 0.2); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(var(--lava-rgb-1), 0.35); }
